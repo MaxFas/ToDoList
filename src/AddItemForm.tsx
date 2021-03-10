@@ -12,7 +12,6 @@ function AddItemForm(props: AddItemFormType) {
         setTitle(event.currentTarget.value)
         setError(false)
     }
-
     const onKeyPressAddItem = (e: KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
             addItem()
