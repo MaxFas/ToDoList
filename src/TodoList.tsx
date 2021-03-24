@@ -36,7 +36,7 @@ function TodoList(props: TodoListPropsType) {
         const changeTaskTitle = (newTitle: string)=>
             props.changeTaskTitle(t.id, newTitle, props.toDoListID)
         return (
-            <li className={t.isDone? 'is-done': ''}>
+            <li key={t.id} className={t.isDone? 'is-done': ''}>
                 <Checkbox color={"primary"} checked={t.isDone}
                 onChange={changeTaskStatus}/>
                 <EditableSpan title={t.title} changeTitle={changeTaskTitle}/>
