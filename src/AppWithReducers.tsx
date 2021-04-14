@@ -19,14 +19,6 @@ export type TaskType = {
     id: string
     isDone: boolean
 }
-export type ToDoListType = {
-    id: string
-    title: string
-    filter: FilterValuesType
-}
-export type TasksStateType = {
-    [key: string]: Array<TaskType>
-}
 
 export type FilterValuesType = 'all' | 'active' | 'completed'
 
