@@ -21,44 +21,61 @@ type TodoListPropsType = {
     changeTitle:(newTitle: string, toDoListID: string) => void
 }
 
-const TodoList = React.memo((props: TodoListPropsType) => {
+const TodoList:React.FC<TodoListPropsType> = React.memo((props) => {
 
-    console.log('rerender')
+   const {toDoListID,
+       filter,
+       title,
+       tasks,
+       removeTask,
+       changeFilter,
+       addTask,
+       changeTaskStatus,
+       removeToDoList,
+       changeTaskTitle,
+       changeTitle} = props
 
-    const addTask =  useCallback((title: string) => props.addTask(title, props.toDoListID), [props.addTask, props.toDoListID])
-    const setAllFilter = useCallback(() => props.changeFilter("all", props.toDoListID), [props.toDoListID])
-    const setActiveFilter = useCallback(() => props.changeFilter("active", props.toDoListID), [props.toDoListID])
-    const setCompletedFilter = useCallback(() => props.changeFilter("completed", props.toDoListID), [props.toDoListID])
-    const removeToDoList = useCallback(() => props.removeToDoList(props.toDoListID), [])
-    const changeTitle = useCallback((newTitle: string) => props.changeTitle(newTitle, props.toDoListID), [props.changeTitle, props.toDoListID])
+    console.log('rerender todolist')
 
-    let tasksForToDoList = props.tasks
-    if (props.filter === 'active') {
+    const addTaskCallBack =  useCallback((title: string) => addTask(title, toDoListID), [addTask, toDoListID])
+    const setAllFilter = useCallback(() => changeFilter("all", toDoListID), [toDoListID])
+    const setActiveFilter = useCallback(() => changeFilter("active", toDoListID), [toDoListID])
+    const setCompletedFilter = useCallback(() => changeFilter("completed", toDoListID), [toDoListID])
+    const removeToDoListCallBack = useCallback(() => removeToDoList(toDoListID), [])
+    const changeTitleCallBack = useCallback((newTitle: string) => changeTitle(newTitle, toDoListID), [changeTitle, toDoListID])
+
+    let tasksForToDoList = tasks
+    if (filter === 'active') {
         tasksForToDoList = tasksForToDoList.filter(t => !t.isDone)
     }
-    if (props.filter === 'completed') {
+    if (filter === 'completed') {
         tasksForToDoList = tasksForToDoList.filter(t => t.isDone)
     }
 
+    const removeTaskCallBack  = (taskID: string) => removeTask(taskID, toDoListID)
+    const changeTaskStatusCallBack  = (taskID: string, isDone: boolean)=>
+        changeTaskStatus(taskID, isDone, toDoListID)
+    const changeTaskTitleCallBack  = (taskID: string, newTitle: string)=>
+        changeTaskTitle(taskID, newTitle, props.toDoListID)
 
     return (
         <div>
-            <h3><EditableSpan title={props.title} changeTitle={changeTitle} />
-            <IconButton onClick={removeToDoList}>
+            <h3><EditableSpan title={title} changeTitle={changeTitleCallBack} />
+            <IconButton onClick={removeToDoListCallBack}>
                 <Delete/>
             </IconButton></h3>
-            <AddItemForm addItem={addTask}/>
+            <AddItemForm addItem={addTaskCallBack}/>
             <ul style={{listStyle: "none", paddingLeft: '0'}}>
-                {tasksForToDoList.map(t=> <Task key={t.id} removeTask={props.removeTask} task={t} toDoListID={props.toDoListID}
-                                           changeTaskStatus={props.changeTaskStatus} changeTaskTitle={props.changeTaskTitle}/>)}
+                {tasksForToDoList.map(t=> <Task key={t.id} removeTask={removeTaskCallBack} task={t}
+                                           changeTaskStatus={changeTaskStatusCallBack} changeTaskTitle={changeTaskTitleCallBack}/>)}
             </ul>
             <div>
                 <Button onClick={setAllFilter} variant={"contained"}
-                        color={props.filter ==='all' ? 'secondary': 'primary'} size={"small"}>All</Button>
+                        color={filter ==='all' ? 'secondary': 'primary'} size={"small"}>All</Button>
                 <Button onClick={setActiveFilter} variant={"contained"}
-                        color={props.filter ==='active' ? 'secondary': 'primary'} size={"small"} >Active</Button>
+                        color={filter ==='active' ? 'secondary': 'primary'} size={"small"} >Active</Button>
                 <Button onClick={setCompletedFilter} variant={"contained"}
-                        color={props.filter ==='completed' ? 'secondary': 'primary'} size={"small"}>Completed</Button>
+                        color={filter ==='completed' ? 'secondary': 'primary'} size={"small"}>Completed</Button>
             </div>
         </div>
     )

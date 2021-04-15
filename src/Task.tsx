@@ -5,27 +5,31 @@ import {Delete} from "@material-ui/icons";
 import {TaskType} from "./AppWithRedux";
 
 type TaskPropsType = {
-    toDoListID: string
     task: TaskType
-    removeTask: (taskId: string, toDoListID: string) => void
-    changeTaskStatus: (taskID: string, isDone: boolean, toDoListID: string) => void
-    changeTaskTitle: (taskID: string, newTitle: string, toDoListID: string) => void
+    removeTask: (taskID: string) => void
+    changeTaskStatus: (taskID: string, isDone: boolean) => void
+    changeTaskTitle: (taskID: string, newTitle: string) => void
 }
 
-export const Task = React.memo((props: TaskPropsType) => {
+export const Task:React.FC<TaskPropsType> = React.memo((props) => {
 
-    const removeTask = useCallback(() => props.removeTask(props.task.id, props.toDoListID), [props.task.id, props.removeTask])
-    const changeTaskStatus = useCallback((e:ChangeEvent<HTMLInputElement>)=>
-        props.changeTaskStatus(props.task.id, e.currentTarget.checked, props.toDoListID), [props.task.id, props.changeTaskStatus])
-    const changeTaskTitle = useCallback((newTitle: string)=>
-        props.changeTaskTitle(props.task.id, newTitle, props.toDoListID), [props.task.id, props.changeTaskTitle])
+    const {task,
+        removeTask,
+        changeTaskStatus,
+        changeTaskTitle,} = props
+
+    const removeTaskCallBack = useCallback(() => removeTask(task.id), [task.id, removeTask])
+    const changeTaskStatusCallBack = useCallback((e:ChangeEvent<HTMLInputElement>)=>
+        props.changeTaskStatus(task.id, e.currentTarget.checked), [task.id, changeTaskStatus])
+    const changeTaskTitleCallBack = useCallback((newTitle: string)=>
+        props.changeTaskTitle(task.id, newTitle), [task.id, changeTaskTitle])
 
     return (
         <li key={props.task.id} className={props.task.isDone? 'is-done': ''}>
             <Checkbox color={"primary"} checked={props.task.isDone}
-                      onChange={changeTaskStatus}/>
-            <EditableSpan title={props.task.title} changeTitle={changeTaskTitle}/>
-            <IconButton onClick={removeTask}>
+                      onChange={changeTaskStatusCallBack}/>
+            <EditableSpan title={props.task.title} changeTitle={changeTaskTitleCallBack}/>
+            <IconButton onClick={removeTaskCallBack}>
                 <Delete/>
             </IconButton>
         </li>
