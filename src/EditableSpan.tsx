@@ -1,7 +1,7 @@
 import React, {useState, KeyboardEvent, ChangeEvent} from "react";
 import {TextField} from "@material-ui/core";
 
-type EditableSpanType = {
+export type EditableSpanType = {
     title: string
     changeTitle: (newTask: string) => void
 }
