@@ -1,7 +1,7 @@
 import {
     addToDoListAC, changeDoListFilterAC, changeDoListTitleAC, removeToDoListAC, toDoListReducer
 }
-    from './todoList-reducer';
+    from '../reducers/todoList-reducer';
 import {v1} from 'uuid';
 import {FilterValuesType, ToDoListType} from "../App";
 
