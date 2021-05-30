@@ -5,12 +5,12 @@ import AddItemForm from "./AddItemForm";
 import {AppBar, Button, Container, Grid, IconButton, Paper, Toolbar, Typography} from "@material-ui/core";
 import {Menu} from "@material-ui/icons";
 import {
-    addToDoListAC,
+    addToDoListAC, addToDoListsTC,
     changeDoListFilterAC,
-    changeDoListTitleAC, getToDoListsTC,
-    removeToDoListAC,
+    changeDoListTitleAC, changeToDoListsTitleTC, getToDoListsTC,
+    removeToDoListAC, removeToDoListsTC,
 } from "./reducers/todoList-reducer";
-import {addTaskAC, changeTaskStatusAC, changeTaskTitleAC, removeTaskAC} from "./reducers/tasks-reducer";
+import {addTaskAC, addTaskTC, changeTaskStatusAC, changeTaskTitleAC, removeTaskAC} from "./reducers/tasks-reducer";
 import {useDispatch, useSelector} from "react-redux";
 import {AppRootStateType} from "./state/store";
 
@@ -46,8 +46,7 @@ function AppWithRedux() {
         dispatch(action)
     }, [dispatch])
     const addTask = useCallback((title: string, toDoListID: string) => {
-        let action = addTaskAC(title, toDoListID)
-        dispatch(action)
+        dispatch(addTaskTC(toDoListID, title))
     }, [dispatch])
     const changeTaskStatus =useCallback((taskID: string, isDone: boolean, toDoListID: string)=> {
         let action = changeTaskStatusAC(taskID, isDone, toDoListID)
@@ -62,16 +61,13 @@ function AppWithRedux() {
         dispatch(action)
     }, [dispatch])
     const changeTitle =useCallback((newTitle: string, toDoListID: string)=> {
-        let action = changeDoListTitleAC(toDoListID, newTitle)
-        dispatch(action)
+        dispatch(changeToDoListsTitleTC(toDoListID, newTitle))
     }, [dispatch])
     const removeToDoList =useCallback((toDoListID: string)=> {
-        let action = removeToDoListAC(toDoListID)
-        dispatch(action)
+        dispatch(removeToDoListsTC(toDoListID))
     }, [dispatch])
     const addToDoList = useCallback((title: string) => {
-        let action = addToDoListAC(title)
-        dispatch(action)
+        dispatch(addToDoListsTC(title))
     }, [dispatch])
 
     const toDoListItems = toDoLists.map(tl => {

@@ -17,13 +17,32 @@ export const toDoListAPI = {
     removeTodoList (toDoListID: string) {
         return instance.delete(`/todo-lists/${toDoListID}`)
     },
-    addToDoList (toDoListID: string, title: string) {
+    addToDoList (title: string) {
         return instance.post('/todo-lists/', {title})
     },
     changeToDoListTitle (toDoListID: string, title: string) {
-        return instance.put(`/todo-lists/${toDoListID}`)
+        return instance.put(`/todo-lists/${toDoListID}`, {title})
     },
     getTasks(toDoListID: string) {
         return instance.get(`/todo-lists/${toDoListID}/tasks`)
-    }
+    },
+    removeTask (toDoListID: string, taskID: string) {
+        return instance.delete(`/todo-lists/${toDoListID}/tasks/${taskID}`)
+    },
+    addTask (toDoListID: string, title: string) {
+        return instance.post(`/todo-lists/${toDoListID}/tasks`, {title})
+    },
+    changeTaskTitle (toDoListID: string, payLoad: RequestPayLoadChangeTaskTitleType) {
+        return instance.put(`/todo-lists/${toDoListID}`, {payLoad})
+    },
+}
+
+type RequestPayLoadChangeTaskTitleType = {
+    title: string
+    description: string
+    completed: boolean
+    status: number
+    priority: number
+    startDate: number
+    deadline: number
 }

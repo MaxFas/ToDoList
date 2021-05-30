@@ -15,8 +15,7 @@ export const toDoListReducer = (state = initialState, action: ActionType) => {
         case "REMOVE-TODOLIST":
             return state.filter(tl => tl.id !== action.toDoListID)
         case "ADD-TODOLIST":
-            const newToDoList: ToDoListType = {id: action.toDoListID, title: action.title, filter: "all"}
-            return [...state, newToDoList]
+            return [...state, {...action.toDoList, filter: 'all'}]
         case "CHANGE-TODOLIST-TITLE": {
             const toDoList = state.find(tl => tl.id === action.toDoListID)
             if (toDoList) {
@@ -41,8 +40,8 @@ export const toDoListReducer = (state = initialState, action: ActionType) => {
 export const removeToDoListAC = (toDoListID: string) => {
     return {type: "REMOVE-TODOLIST", toDoListID} as const
 }
-export const addToDoListAC = (title: string) => {
-    return {type: "ADD-TODOLIST", title, toDoListID: v1()} as const
+export const addToDoListAC = (toDoList: ToDoListsFromServerType) => {
+    return {type: "ADD-TODOLIST", toDoList} as const
 }
 export const changeDoListFilterAC = ( newFilterValue: FilterValuesType, toDoListID: string)=> {
     return {type:"CHANGE-TODOLIST-FILTER", newFilterValue, toDoListID} as const
@@ -64,6 +63,20 @@ export type GetToDoListsActionType = ReturnType<typeof getToDoLists>
 export const getToDoListsTC = () => (dispatch: Dispatch) => {
     toDoListAPI.getToDoList()
         .then(res => dispatch(getToDoLists(res.data)))
+}
+
+export const addToDoListsTC = (title: string) => (dispatch: Dispatch) => {
+    toDoListAPI.addToDoList(title)
+        .then(res => dispatch(addToDoListAC(res.data.data.item)))
+}
+export const removeToDoListsTC = (toDOListID: string) => (dispatch: Dispatch) => {
+    toDoListAPI.removeTodoList(toDOListID)
+        .then(res => dispatch(removeToDoListAC(toDOListID)))
+}
+
+export const changeToDoListsTitleTC = (toDoListID: string, title: string) => (dispatch: Dispatch) => {
+    toDoListAPI.changeToDoListTitle(toDoListID, title)
+        .then(res => dispatch(changeDoListTitleAC(toDoListID, title)))
 }
 
 export type ToDoListsFromServerType = {
