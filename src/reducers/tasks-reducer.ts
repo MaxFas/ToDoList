@@ -1,12 +1,20 @@
-import {TasksStateType, TaskType} from "../App";
-import {v1} from "uuid";
+
 import {AddToDoListActionType, GetToDoListsActionType, RemoveToDoListActionType} from "./todoList-reducer";
-import {toDoListAPI} from "../api/todoList-API";
+import {
+    ChangingPropertyRequestPayLoadChangeTaskType,
+    RequestPayLoadChangeTaskType,
+    toDoListAPI
+} from "../api/todoList-API";
 import {Dispatch} from "redux";
+import {AppRootStateType} from "../state/store";
+
+export type TasksStateType = {
+    [key: string]: Array<TasksFromServerType>
+}
 
 let initialState: TasksStateType = {}
 
-export const tasksReducer = (state = initialState, action: ActionsTypes)  => {
+export const tasksReducer = (state = initialState, action: ActionsTypes):TasksStateType  => {
     switch (action.type) {
         case "GET-TASKS": {
             return {...state, [action.toDoListID]: action.tasks}
@@ -26,20 +34,10 @@ export const tasksReducer = (state = initialState, action: ActionsTypes)  => {
         case "ADD-TASK": {
             return {...state, [action.task.todoListId]: [action.task, ...state[action.task.todoListId]]}
         }
-        case "CHANGE-STATUS": {
-
-            return {...state, [action.todoListID]: state[action.todoListID].map(t=> {
-                if (t.id===action.taskID){
-                    return {...t, isDone: action.isDone}
-                } else {
-                    return t
-                }
-                })}
-        }
-        case "CHANGE-TITLE": {
-            return {...state, [action.todoListID]: state[action.todoListID].map(t=> {
-                    if (t.id===action.taskID){
-                        return {...t, title: action.title}
+        case "CHANGE-TASK": {
+            return {...state, [action.task.todoListId]: state[action.task.todoListId].map(t=> {
+                    if (t.id===action.task.id){
+                        return {...t, ...action.changingProperty}
                     } else {
                         return t
                     }
@@ -60,17 +58,17 @@ export const tasksReducer = (state = initialState, action: ActionsTypes)  => {
 export const getTasks = (tasks: TasksFromServerType[], toDoListID: string) => {
     return {type: "GET-TASKS", tasks, toDoListID} as const
 }
-export const removeTaskAC = (taskID: string, todoListID: string) => {
+export const removeTask = (todoListID: string, taskID: string ) => {
     return {type: "REMOVE-TASK", taskID, todoListID} as const
 }
-export const addTaskAC = (task: TasksFromServerType) => {
+export const addTask = (task: TasksFromServerType) => {
     return {type: "ADD-TASK", task}  as const
 }
-export const changeTaskStatusAC = (taskID: string, isDone: boolean, todoListID: string) => {
+export const changeTaskStatus = (taskID: string, isDone: boolean, todoListID: string) => {
     return {type: "CHANGE-STATUS", taskID, isDone, todoListID}  as const
 }
-export const changeTaskTitleAC = (taskID: string, title: string, todoListID: string) => {
-    return {type: "CHANGE-TITLE", taskID, title, todoListID} as const
+export const changeTask = (task: TasksFromServerType, changingProperty: ChangingPropertyRequestPayLoadChangeTaskType) => {
+    return {type: "CHANGE-TASK", task, changingProperty} as const
 }
 
 export const getTasksTC = (toDoListID: string) => (dispatch: Dispatch) => {
@@ -80,24 +78,41 @@ export const getTasksTC = (toDoListID: string) => (dispatch: Dispatch) => {
 
 export const addTaskTC = (toDoListID: string, title: string) => (dispatch: Dispatch) => {
     toDoListAPI.addTask(toDoListID, title)
-        .then(res => dispatch(addTaskAC(res.data.data.item)))
+        .then(res => dispatch(addTask(res.data.data.item)))
 }
 
-export const removeTaskTC = (toDoListID: string) => (dispatch: Dispatch) => {
-    toDoListAPI.getTasks(toDoListID)
-        .then(res=> dispatch(getTasks(res.data.items, toDoListID)))
+export const removeTaskTC = (toDoListID: string, taskID: string) => (dispatch: Dispatch) => {
+    toDoListAPI.removeTask(toDoListID, taskID)
+        .then(res=> dispatch(removeTask(toDoListID, taskID)))
 }
 
-export const changeTaskTitleTC = (toDoListID: string) => (dispatch: Dispatch) => {
-    toDoListAPI.getTasks(toDoListID)
-        .then(res=> dispatch(getTasks(res.data.items, toDoListID)))
+export const changeTaskTC = (toDoListID: string, taskID: string, changingProperty:ChangingPropertyRequestPayLoadChangeTaskType) =>
+    (dispatch: Dispatch, getState: ()=> AppRootStateType) => {
+
+    const state = getState()
+    const task = state.tasks[toDoListID].find(t => t.id === taskID)
+    if (!task) {
+        console.warn('task not found in the state')
+        return
+    }
+    let taskForServer: RequestPayLoadChangeTaskType = {
+        title: task.title,
+        description: task.description,
+        status: task.status,
+        priority: task.priority,
+        startDate: task.startDate,
+        deadline: task.deadline,
+        ...changingProperty
+    }
+    toDoListAPI.changeTaskTitle(toDoListID, taskForServer, taskID)
+        .then(res=> dispatch(changeTask(res.data.data.item, changingProperty)))
 }
 
 
-type RemoveTaskActionType = ReturnType<typeof removeTaskAC>
-type AddTaskActionType = ReturnType<typeof addTaskAC>
-type ChangeTaskStatusActionType = ReturnType<typeof changeTaskStatusAC>
-type ChangeTaskTitleActionType = ReturnType<typeof changeTaskTitleAC>
+type RemoveTaskActionType = ReturnType<typeof removeTask>
+type AddTaskActionType = ReturnType<typeof addTask>
+type ChangeTaskStatusActionType = ReturnType<typeof changeTaskStatus>
+type ChangeTaskTitleActionType = ReturnType<typeof changeTask>
 type GetTasksActionType = ReturnType<typeof getTasks>
 
 export type TasksFromServerType = {
@@ -106,12 +121,19 @@ export type TasksFromServerType = {
     completed: boolean
     status: number
     priority: number
-    startDate: number
-    deadline: number
+    startDate: string
+    deadline: string
     id: string
     todoListId: string
     order: number
     addedDate: number
+}
+
+export enum TaskStatuses {
+    New = 0,
+    InProgress = 1,
+    Completed = 2,
+    Draft = 3
 }
 
 

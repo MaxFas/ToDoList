@@ -5,12 +5,16 @@ import AddItemForm from "./AddItemForm";
 import {AppBar, Button, Container, Grid, IconButton, Paper, Toolbar, Typography} from "@material-ui/core";
 import {Menu} from "@material-ui/icons";
 import {
-    addToDoListAC, addToDoListsTC,
+    addToDoListsTC,
     changeDoListFilterAC,
-    changeDoListTitleAC, changeToDoListsTitleTC, getToDoListsTC,
-    removeToDoListAC, removeToDoListsTC,
+    changeToDoListsTitleTC, getToDoListsTC,
+    removeToDoListsTC, ToDoListType,
 } from "./reducers/todoList-reducer";
-import {addTaskAC, addTaskTC, changeTaskStatusAC, changeTaskTitleAC, removeTaskAC} from "./reducers/tasks-reducer";
+import {
+    addTaskTC,
+    changeTaskTC,
+    removeTaskTC, TasksStateType, TaskStatuses
+} from "./reducers/tasks-reducer";
 import {useDispatch, useSelector} from "react-redux";
 import {AppRootStateType} from "./state/store";
 
@@ -18,14 +22,6 @@ export type TaskType = {
     title: string
     id: string
     isDone: boolean
-}
-export type ToDoListType = {
-    id: string
-    title: string
-    filter: FilterValuesType
-}
-export type TasksStateType = {
-    [key: string]: Array<TaskType>
 }
 
 export type FilterValuesType = 'all' | 'active' | 'completed'
@@ -42,19 +38,16 @@ function AppWithRedux() {
     let dispatch = useDispatch()
 
     const removeTask = useCallback((taskId: string, toDoListID: string)=> {
-        let action = removeTaskAC(taskId, toDoListID)
-        dispatch(action)
+        dispatch(removeTaskTC(toDoListID, taskId))
     }, [dispatch])
     const addTask = useCallback((title: string, toDoListID: string) => {
         dispatch(addTaskTC(toDoListID, title))
     }, [dispatch])
-    const changeTaskStatus =useCallback((taskID: string, isDone: boolean, toDoListID: string)=> {
-        let action = changeTaskStatusAC(taskID, isDone, toDoListID)
-        dispatch(action)
+    const changeTaskStatus =useCallback((taskID: string, status: TaskStatuses, toDoListID: string)=> {
+        dispatch(changeTaskTC(toDoListID, taskID, {status}))
     }, [dispatch])
     const changeTaskTitle =useCallback((taskID: string, newTitle: string, toDoListID: string)=> {
-        let action = changeTaskTitleAC(taskID, newTitle, toDoListID)
-        dispatch(action)
+        dispatch(changeTaskTC(toDoListID, taskID, {title: newTitle}))
     }, [dispatch])
     const changeFilter =useCallback((newFilterValue: FilterValuesType, toDoListID: string)=> {
         let action = changeDoListFilterAC(newFilterValue, toDoListID)

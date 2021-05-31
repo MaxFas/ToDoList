@@ -1,5 +1,5 @@
 import axios from "axios";
-import {ToDoListsFromServerType} from "../reducers/todoList-reducer";
+import {TaskStatuses} from "../reducers/tasks-reducer";
 
 const instance = axios.create({
     baseURL: 'https://social-network.samuraijs.com/api/1.1',
@@ -32,17 +32,25 @@ export const toDoListAPI = {
     addTask (toDoListID: string, title: string) {
         return instance.post(`/todo-lists/${toDoListID}/tasks`, {title})
     },
-    changeTaskTitle (toDoListID: string, payLoad: RequestPayLoadChangeTaskTitleType) {
-        return instance.put(`/todo-lists/${toDoListID}`, {payLoad})
+    changeTaskTitle (toDoListID: string, payLoad: RequestPayLoadChangeTaskType, taskID: string) {
+        return instance.put(`/todo-lists/${toDoListID}/tasks/${taskID}`, payLoad)
     },
 }
 
-type RequestPayLoadChangeTaskTitleType = {
+export type RequestPayLoadChangeTaskType = {
     title: string
     description: string
-    completed: boolean
-    status: number
+    status: TaskStatuses
     priority: number
-    startDate: number
-    deadline: number
+    startDate: string
+    deadline: string
+}
+
+export type ChangingPropertyRequestPayLoadChangeTaskType = {
+    title?: string
+    description?: string
+    status?: TaskStatuses
+    priority?: number
+    startDate?: string
+    deadline?: string
 }
