@@ -1,12 +1,12 @@
 import React, {useCallback, useEffect} from "react";
-import {FilterValuesType, TaskType} from "./AppWithRedux";
+import {FilterValuesType} from "../AppWithRedux";
 import AddItemForm from "./AddItemForm";
 import EditableSpan from "./EditableSpan";
 import {Button} from "@material-ui/core";
 import {IconButton} from '@material-ui/core';
 import {Delete} from '@material-ui/icons';
 import {Task} from "./Task";
-import {getTasksTC, TasksFromServerType, TasksStateType, TaskStatuses} from "./reducers/tasks-reducer";
+import {getTasksTC, TasksFromServerType, TaskStatuses} from "../reducers/tasks-reducer";
 import {useDispatch} from "react-redux";
 
 type TodoListPropsType = {
@@ -14,36 +14,40 @@ type TodoListPropsType = {
     filter: FilterValuesType
     title: string
     tasks: Array<TasksFromServerType>
+    isExisting: boolean
     removeTask: (taskId: string, toDoListID: string) => void
     changeFilter: (newFilterValue: FilterValuesType, toDoListID: string) => void
     addTask: (title: string, toDoListID: string) => void
     changeTaskStatus: (taskID: string, status: TaskStatuses, toDoListID: string) => void
     removeToDoList: (toDoListID: string) => void
     changeTaskTitle: (taskID: string, newTitle: string, toDoListID: string) => void
-    changeTitle:(newTitle: string, toDoListID: string) => void
+    changeTitle: (newTitle: string, toDoListID: string) => void
 }
 
-const TodoList:React.FC<TodoListPropsType> = React.memo((props) => {
+const TodoList: React.FC<TodoListPropsType> = React.memo((props) => {
 
     const dispatch = useDispatch()
 
-   const {toDoListID,
-       filter,
-       title,
-       tasks,
-       removeTask,
-       changeFilter,
-       addTask,
-       changeTaskStatus,
-       removeToDoList,
-       changeTaskTitle,
-       changeTitle} = props
+    const {
+        toDoListID,
+        filter,
+        title,
+        tasks,
+        removeTask,
+        changeFilter,
+        addTask,
+        changeTaskStatus,
+        removeToDoList,
+        changeTaskTitle,
+        changeTitle,
+        isExisting
+    } = props
 
-    useEffect(()=> {
+    useEffect(() => {
         dispatch(getTasksTC(toDoListID))
     }, [])
 
-    const addTaskCallBack =  useCallback((title: string) => addTask(title, toDoListID), [addTask, toDoListID])
+    const addTaskCallBack = useCallback((title: string) => addTask(title, toDoListID), [addTask, toDoListID])
     const setAllFilter = useCallback(() => changeFilter("all", toDoListID), [toDoListID])
     const setActiveFilter = useCallback(() => changeFilter("active", toDoListID), [toDoListID])
     const setCompletedFilter = useCallback(() => changeFilter("completed", toDoListID), [toDoListID])
@@ -58,30 +62,31 @@ const TodoList:React.FC<TodoListPropsType> = React.memo((props) => {
         tasksForToDoList = tasksForToDoList.filter(t => t.status === TaskStatuses.Completed)
     }
 
-    const removeTaskCallBack  = (taskID: string) => removeTask(taskID, toDoListID)
-    const changeTaskStatusCallBack  = (taskID: string, status: TaskStatuses)=>
+    const removeTaskCallBack = (taskID: string) => removeTask(taskID, toDoListID)
+    const changeTaskStatusCallBack = (taskID: string, status: TaskStatuses) =>
         changeTaskStatus(taskID, status, toDoListID)
-    const changeTaskTitleCallBack  = (taskID: string, newTitle: string)=>
+    const changeTaskTitleCallBack = (taskID: string, newTitle: string) =>
         changeTaskTitle(taskID, newTitle, props.toDoListID)
 
     return (
         <div>
-            <h3><EditableSpan title={title} changeTitle={changeTitleCallBack} />
-            <IconButton onClick={removeToDoListCallBack}>
-                <Delete/>
-            </IconButton></h3>
+            <h3><EditableSpan title={title} changeTitle={changeTitleCallBack}/>
+                <IconButton onClick={removeToDoListCallBack} disabled={!isExisting}>
+                    <Delete/>
+                </IconButton></h3>
             <AddItemForm addItem={addTaskCallBack}/>
             <ul style={{listStyle: "none", paddingLeft: '0'}}>
-                {tasksForToDoList.map(t=> <Task key={t.id} removeTask={removeTaskCallBack} task={t}
-                                           changeTaskStatus={changeTaskStatusCallBack} changeTaskTitle={changeTaskTitleCallBack}/>)}
+                {tasksForToDoList.map(t => <Task key={t.id} removeTask={removeTaskCallBack} task={t}
+                                                 changeTaskStatus={changeTaskStatusCallBack}
+                                                 changeTaskTitle={changeTaskTitleCallBack}/>)}
             </ul>
             <div>
                 <Button onClick={setAllFilter} variant={"contained"}
-                        color={filter ==='all' ? 'secondary': 'primary'} size={"small"}>All</Button>
+                        color={filter === 'all' ? 'secondary' : 'primary'} size={"small"}>All</Button>
                 <Button onClick={setActiveFilter} variant={"contained"}
-                        color={filter ==='active' ? 'secondary': 'primary'} size={"small"} >Active</Button>
+                        color={filter === 'active' ? 'secondary' : 'primary'} size={"small"}>Active</Button>
                 <Button onClick={setCompletedFilter} variant={"contained"}
-                        color={filter ==='completed' ? 'secondary': 'primary'} size={"small"}>Completed</Button>
+                        color={filter === 'completed' ? 'secondary' : 'primary'} size={"small"}>Completed</Button>
             </div>
         </div>
     )

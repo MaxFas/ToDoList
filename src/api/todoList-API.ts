@@ -1,5 +1,6 @@
 import axios from "axios";
-import {TaskStatuses} from "../reducers/tasks-reducer";
+import {TasksFromServerType, TaskStatuses} from "../reducers/tasks-reducer";
+import {ToDoListsFromServerType} from "../reducers/todoList-reducer";
 
 const instance = axios.create({
     baseURL: 'https://social-network.samuraijs.com/api/1.1',
@@ -15,24 +16,24 @@ export const toDoListAPI = {
       return instance.get('/todo-lists')
     },
     removeTodoList (toDoListID: string) {
-        return instance.delete(`/todo-lists/${toDoListID}`)
+        return instance.delete<ResponseType>(`/todo-lists/${toDoListID}`)
     },
     addToDoList (title: string) {
-        return instance.post('/todo-lists/', {title})
+        return instance.post<ResponseType<{item: ToDoListsFromServerType}>>('/todo-lists/', {title})
     },
     changeToDoListTitle (toDoListID: string, title: string) {
-        return instance.put(`/todo-lists/${toDoListID}`, {title})
+        return instance.put<ResponseType>(`/todo-lists/${toDoListID}`, {title})
     },
     getTasks(toDoListID: string) {
         return instance.get(`/todo-lists/${toDoListID}/tasks`)
     },
     removeTask (toDoListID: string, taskID: string) {
-        return instance.delete(`/todo-lists/${toDoListID}/tasks/${taskID}`)
+        return instance.delete<ResponseType>(`/todo-lists/${toDoListID}/tasks/${taskID}`)
     },
     addTask (toDoListID: string, title: string) {
-        return instance.post(`/todo-lists/${toDoListID}/tasks`, {title})
+        return instance.post<ResponseType<{ item: TasksFromServerType }>>(`/todo-lists/${toDoListID}/tasks`, {title})
     },
-    changeTaskTitle (toDoListID: string, payLoad: RequestPayLoadChangeTaskType, taskID: string) {
+    changeTask (toDoListID: string, payLoad: RequestPayLoadChangeTaskType, taskID: string) {
         return instance.put(`/todo-lists/${toDoListID}/tasks/${taskID}`, payLoad)
     },
 }
@@ -53,4 +54,10 @@ export type ChangingPropertyRequestPayLoadChangeTaskType = {
     priority?: number
     startDate?: string
     deadline?: string
+}
+
+export type ResponseType<T={}> = {
+    resultCode: number
+    messages: Array<string>
+    data:T
 }

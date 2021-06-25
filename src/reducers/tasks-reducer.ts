@@ -7,6 +7,7 @@ import {
 } from "../api/todoList-API";
 import {Dispatch} from "redux";
 import {AppRootStateType} from "../state/store";
+import {isLoading, setError} from "./app-reducer";
 
 export type TasksStateType = {
     [key: string]: Array<TasksFromServerType>
@@ -72,23 +73,40 @@ export const changeTask = (task: TasksFromServerType, changingProperty: Changing
 }
 
 export const getTasksTC = (toDoListID: string) => (dispatch: Dispatch) => {
+    dispatch(isLoading(true))
     toDoListAPI.getTasks(toDoListID)
-        .then(res=> dispatch(getTasks(res.data.items, toDoListID)))
+        .then(res=> {
+            dispatch(getTasks(res.data.items, toDoListID))
+            dispatch(isLoading(false))
+        })
+
 }
 
 export const addTaskTC = (toDoListID: string, title: string) => (dispatch: Dispatch) => {
+    dispatch(isLoading(true))
     toDoListAPI.addTask(toDoListID, title)
-        .then(res => dispatch(addTask(res.data.data.item)))
+        .then(res => {
+            if(res.data.resultCode === 0){
+                dispatch(addTask(res.data.data.item))
+            } else {
+               dispatch(setError(res.data.messages[0]))
+            }
+            dispatch(isLoading(false))
+        })
 }
 
 export const removeTaskTC = (toDoListID: string, taskID: string) => (dispatch: Dispatch) => {
+    dispatch(isLoading(true))
     toDoListAPI.removeTask(toDoListID, taskID)
-        .then(res=> dispatch(removeTask(toDoListID, taskID)))
+        .then(res=> {
+            dispatch(removeTask(toDoListID, taskID))
+            dispatch(isLoading(false))
+        })
 }
 
 export const changeTaskTC = (toDoListID: string, taskID: string, changingProperty:ChangingPropertyRequestPayLoadChangeTaskType) =>
     (dispatch: Dispatch, getState: ()=> AppRootStateType) => {
-
+    dispatch(isLoading(true))
     const state = getState()
     const task = state.tasks[toDoListID].find(t => t.id === taskID)
     if (!task) {
@@ -104,8 +122,11 @@ export const changeTaskTC = (toDoListID: string, taskID: string, changingPropert
         deadline: task.deadline,
         ...changingProperty
     }
-    toDoListAPI.changeTaskTitle(toDoListID, taskForServer, taskID)
-        .then(res=> dispatch(changeTask(res.data.data.item, changingProperty)))
+    toDoListAPI.changeTask(toDoListID, taskForServer, taskID)
+        .then(res=> {
+            dispatch(changeTask(res.data.data.item, changingProperty))
+            dispatch(isLoading(false))
+        })
 }
 
 
