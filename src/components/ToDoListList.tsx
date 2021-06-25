@@ -19,6 +19,7 @@ import {
 } from "../reducers/tasks-reducer";
 import {useDispatch, useSelector} from "react-redux";
 import {AppRootStateType} from "../state/store";
+import {Redirect} from "react-router-dom";
 
 export type TaskType = {
     title: string
@@ -30,14 +31,18 @@ export type FilterValuesType = 'all' | 'active' | 'completed'
 
 export function ToDoListList() {
 
+    const isLoggedIn = useSelector<AppRootStateType, boolean>((state)=> state.auth.isLoggedIn)
 
     useEffect(()=>{
+        if (!isLoggedIn) {
+            return
+        }
         dispatch(getToDoListsTC())
     }, [])
 
-    let toDoLists = useSelector<AppRootStateType, ToDoListType[]>(state => state.todolists)
-    let tasks = useSelector<AppRootStateType, TasksStateType>(state => state.tasks)
-    let dispatch = useDispatch()
+    const toDoLists = useSelector<AppRootStateType, ToDoListType[]>(state => state.todolists)
+    const tasks = useSelector<AppRootStateType, TasksStateType>(state => state.tasks)
+    const dispatch = useDispatch()
 
     const removeTask = useCallback((taskId: string, toDoListID: string)=> {
         dispatch(removeTaskTC(toDoListID, taskId))
@@ -77,6 +82,9 @@ export function ToDoListList() {
             </Grid>
         )
     })
+    if (!isLoggedIn) {
+        return <Redirect to={'/login'}/>
+    }
 
     return (
             <Container fixed style={{padding: '20px'}}>

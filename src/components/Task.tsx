@@ -24,7 +24,7 @@ export const Task:React.FC<TaskPropsType> = React.memo((props) => {
         changeTaskStatus(task.id, newIsDoneValue ? TaskStatuses.Completed : TaskStatuses.New)
     }, [task.id, changeTaskStatus])
     const changeTaskTitleCallBack = useCallback((newTitle: string)=>
-        props.changeTaskTitle(task.id, newTitle), [task.id, changeTaskTitle])
+        changeTaskTitle(task.id, newTitle), [task.id, changeTaskTitle])
 
     return (
         <li key={props.task.id} className={props.task.status === TaskStatuses.Completed? 'is-done': ''}>

@@ -38,6 +38,32 @@ export const toDoListAPI = {
     },
 }
 
+export const authAPI = {
+    login(personalData: LoginRequestType) {
+        return instance.post<ResponseType<{userID: number}>>(`/auth/login`, personalData)
+    },
+    logout() {
+        return instance.delete<ResponseType>(`/auth/login`)
+    },
+    me() {
+        return instance.get<ResponseType<AuthMeType>>(`/auth/me`)
+    }
+}
+
+
+export type AuthMeType = {
+    id: number
+    email: string
+    login: string
+}
+
+export type LoginRequestType = {
+    email: string
+    password: string
+    rememberMe: boolean
+    captcha?: string
+}
+
 export type RequestPayLoadChangeTaskType = {
     title: string
     description: string
