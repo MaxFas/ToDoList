@@ -21,11 +21,6 @@ import {useDispatch, useSelector} from "react-redux";
 import {AppRootStateType} from "../state/store";
 import {Redirect} from "react-router-dom";
 
-export type TaskType = {
-    title: string
-    id: string
-    isDone: boolean
-}
 
 export type FilterValuesType = 'all' | 'active' | 'completed'
 

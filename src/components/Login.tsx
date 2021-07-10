@@ -59,8 +59,8 @@ export const Login = () => {
                         </a>
                     </p>
                     <p>or use common test account credentials:</p>
-                    <p>Email: free@samuraijs.com</p>
-                    <p>Password: free</p>
+                    <p>Email: fastsovmax@yandex.ru</p>
+                    <p>Password: test</p>
                 </FormLabel>
                 <form onSubmit={formik.handleSubmit}>
                     <FormGroup>
